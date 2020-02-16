@@ -1,0 +1,109 @@
+---
+# DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-a
+  namespace: lab-k8s
+  labels:
+    app: app-a
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-a
+  template:
+    metadata:
+      labels:
+        app: app-a
+    spec:
+      terminationGracePeriodSeconds: 30
+      #affinity:
+      #  podAntiAffinity:
+      #    preferredDuringSchedulingIgnoredDuringExecution:
+      #      - weight: 1
+      #        podAffinityTerm:
+      #          topologyKey: kubernetes.io/hostname
+      #          labelSelector:
+      #            matchLabels:
+      #              app: app-a
+      containers:
+      - name: app-a
+        ports:
+        - name: application
+          containerPort: 80
+        image: "nginx:latest"
+        imagePullPolicy: Always
+        env:
+          - name: ENVIRONMENT
+            value: "dev"
+        resources:
+          limits:
+            cpu: 20m
+            memory: 20Mi
+          requests:
+            cpu: 10m
+            memory: 10Mi
+        #readinessProbe:
+        #  httpGet:
+        #    path: /health
+        #    port: 80
+        #    scheme: HTTP
+        #  initialDelaySeconds: 5
+        #  timeoutSeconds: 3
+        #  periodSeconds: 10
+        #  failureThreshold: 3
+        #  successThreshold: 1
+        #livenessProbe:
+        #  httpGet:
+        #    path: /health
+        #    port: 80
+        #    scheme: HTTP
+        #  initialDelaySeconds: 5
+        #  timeoutSeconds: 3
+        #  periodSeconds: 10
+        #  failureThreshold: 3
+        #  successThreshold: 1
+        
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-a
+  namespace: lab-k8s
+  labels:
+    app: app-a
+  #annotations:
+  #  alb.ingress.kubernetes.io/healthcheck-path: /health
+spec:
+  ports:
+  - name: application
+    port: 80
+    targetPort: application
+    protocol: TCP
+  selector:
+    app: app-a
+  type: NodePort
+
+---
+# HPA
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app-a
+  namespace: lab-k8s
+  labels:
+    app: app-a
+spec:
+   maxReplicas: 10
+   minReplicas: 2
+   scaleTargetRef:
+     apiVersion: apps/v1
+     kind: Deployment
+     name: app-a
+   metrics:
+   - type: Resource
+     resource:
+       name: cpu
+       targetAverageUtilization: 80
