@@ -32,7 +32,7 @@ spec:
         ports:
         - name: application
           containerPort: 80
-        image: "nginx:latest"
+        image: "echinen2/lab-k8s:v2"
         imagePullPolicy: Always
         env:
           - name: ENVIRONMENT
@@ -46,22 +46,22 @@ spec:
             memory: 10Mi
         #readinessProbe:
         #  httpGet:
-        #    path: /health
+        #    path: /health.html
         #    port: 80
         #    scheme: HTTP
-        #  initialDelaySeconds: 5
+        #  initialDelaySeconds: 20
         #  timeoutSeconds: 3
         #  periodSeconds: 10
         #  failureThreshold: 3
         #  successThreshold: 1
         #livenessProbe:
         #  httpGet:
-        #    path: /health
+        #    path: /health.html
         #    port: 80
         #    scheme: HTTP
-        #  initialDelaySeconds: 5
+        #  initialDelaySeconds: 30
         #  timeoutSeconds: 3
-        #  periodSeconds: 10
+        #  periodSeconds: 5
         #  failureThreshold: 3
         #  successThreshold: 1
         
@@ -88,22 +88,22 @@ spec:
 
 ---
 # HPA
-apiVersion: autoscaling/v2beta1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: app-a
-  namespace: lab-k8s
-  labels:
-    app: app-a
-spec:
-   maxReplicas: 10
-   minReplicas: 2
-   scaleTargetRef:
-     apiVersion: apps/v1
-     kind: Deployment
-     name: app-a
-   metrics:
-   - type: Resource
-     resource:
-       name: cpu
-       targetAverageUtilization: 80
+#apiVersion: autoscaling/v2beta1
+#kind: HorizontalPodAutoscaler
+#metadata:
+#  name: app-a
+#  namespace: lab-k8s
+#  labels:
+#    app: app-a
+#spec:
+#   maxReplicas: 10
+#   minReplicas: 2
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: app-a
+#   metrics:
+#   - type: Resource
+#     resource:
+#       name: cpu
+#       targetAverageUtilization: 80
